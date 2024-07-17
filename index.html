@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video.js Example</title>
+  <script src="https://vjs.zencdn.net/7.11.4/video.min.js"></script>
+  <link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet" />
+  <style>
+    .video-js {
+      width: 600px;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+    <video id="my-video" class="video-js vjs-default-skin" controls>
+        <p class="vjs-no-js">
+        To view this video please enable JavaScript, and consider upgrading to a
+        web browser that
+        <a href="https://videojs.com/html5-video-support/" target="_blank">
+            supports HTML5 video
+        </a>
+        </p>
+  <script>
+    // Initialize Video.js player
+    var player = videojs('my-video', {
+        controls: true,
+        autoplay: false,
+        preload: 'auto',
+        sources: [{
+            src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+            type: 'video/mp4'
+        }]
+    });
+
+    // Function to limit time range
+    function limitTimeRange() {
+        var startTime = 180; // 3 minutes in seconds
+        var endTime = 240; // 4 minutes in seconds
+        var duration = endTime - startTime;
+
+        player.currentTime(startTime);
+
+        player.on('timeupdate', function() {
+            if (player.currentTime() > endTime) {
+                player.currentTime(startTime);
+                player.pause();
+            }
+        });
+
+        player.on('seeking', function() {
+            var currentTime = player.currentTime();
+            if (currentTime < startTime || currentTime > endTime) {
+                player.currentTime(startTime);
+                player.pause();
+            }
+        });
+
+        player.on('loadedmetadata', function() {
+            // Adjust the duration display
+            var durationDisplay = player.controlBar.durationDisplay;
+            if (durationDisplay) {
+                durationDisplay.el().textContent = '1:00';
+            }
+
+            // Adjust the remaining time display
+            var remainingTimeDisplay = player.controlBar.remainingTimeDisplay;
+            if (remainingTimeDisplay) {
+                remainingTimeDisplay.el().textContent = '-1:00';
+            }
+
+            // Limit the progress bar to the 1-minute range
+            var seekBar = player.controlBar.progressControl.seekBar;
+            if (seekBar) {
+                seekBar.update = function() {
+                    var progress = (player.currentTime() - startTime) / duration;
+                    seekBar.el().style.width = (progress * 100) + '%';
+                };
+            }
+        });
+    }
+
+    // Apply the time range limitation after the player is ready
+    player.ready(function() {
+        limitTimeRange();
+    });
+
+  </script>
+</body>
+</html>
