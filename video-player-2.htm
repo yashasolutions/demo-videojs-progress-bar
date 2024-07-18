@@ -18,6 +18,7 @@
 
   <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264"
         data-setup="{}">
+    <!-- let's stick to this video it's long enought for various test -->
     <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" type="video/mp4">
     <p class="vjs-no-js">
     To view this video please enable JavaScript, and consider upgrading to a
@@ -27,9 +28,17 @@
   </video>
 
   <script>
+   // Problem with stil have
+   // - the progress bar is sliding "out of the video" at the end
+   // - selecting a time with the progress bar is not working correctly
+   // - the end time is not displayed correctly
+   // - seek by sliding the progress bar is not working correctly
+
     var player = videojs('my-video');
 
     player.ready(function() {
+        // Define the start and end times manually here
+        // on purpose I took 10 sec for easier testing
         var startTime = 180;
         var endTime =  190;
         var duration = endTime - startTime;
@@ -62,8 +71,14 @@
             seekBar.on('mousedown', function(event) {
                 event.preventDefault();
                 var newTime = startTime + (event.offsetX / seekBar.width()) * duration;
-                console.log(startTime);
-                console.log(newTime);
+                // some log to figure out why selecting a time is not working correctly
+                console.log('mousedown');
+                console.log('startTime: '+startTime);
+                console.log('event.offsetX: '+event.offsetX);
+                console.log('seekBar.width(): '+seekBar.width());
+                console.log('duration: '+duration);
+                console.log('newTime: '+newTime);
+
                 player.currentTime(newTime);
             });
 
